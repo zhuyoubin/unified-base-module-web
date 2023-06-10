@@ -1,0 +1,59 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://127.0.0.1:3306/db-demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    druid:
+      # 配置数据库连接池相关信息
+      initial-size: 10 # 初始化时候数据库连接数量
+      min-idle: 10 # 最小空闲连接数量
+      max-active: 20 # 最多活跃连接数量
+      max-wait: 60000 # 指定最大超时等待时间,ms
+      # 指定删除空闲连接的时间间隔
+      time-between-eviction-runs-millis: 60000
+      # 指定一个连接最小生存时间
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM DUAL
+      test-on-borrow: true
+      test-on-return: true
+      test-while-idle: true
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置SQL监控相关信息
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall
+      use-global-data-source-stat: true
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 配置Druid控制器服务
+      stat-view-servlet:
+        enabled: true # 开启Druid控制器服务
+        login-username: root # 登录姓名
+        login-password: root # 登录密码
+        reset-enable: false
+        url-pattern: /druid/* # 指定druid后台登录拦截地址
+      # 配置过滤信息
+      web-stat-filter:
+        enabled: true
+        # 对所有请求进行过滤
+        url-pattern: /**
+        # 这些类型的不进行过滤
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+  # thymeleaf 相关配置
+  thymeleaf:
+    prefix: classpath:/templates/ # 定义静态资源存放目录
+    suffix: .html # 定义静态资源文件的后缀名称
+    encoding: UTF-8 # 文件编码字符集
+    mode: HTML # 模板文件类型
+    cache: false # 是否开启静态资源缓存
+    check-template: true # 渲染模板之前,是否检查模板文件是否存在
+    check-template-location: true # 是否检查模板目录是否存在
+# 配置 mybatis-plus
+mybatis-plus:
+  # 指定mapper映射文件的存放路径
+  mapper-locations: classpath:mappers/**/*.xml
+  configuration:
+    # 打印SQL语句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
