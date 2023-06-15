@@ -7,7 +7,7 @@
     <name>unified-base-module-web</name>
     <groupId>io.github.zhuyoubin</groupId>
     <artifactId>unified-base-module-web</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <url>https://github.com/zhuyoubin/unified-base-module-web</url>
     <description>This is a basic dependencies for web project.</description>
 
@@ -36,6 +36,7 @@
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
         <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
         <druid.version>1.2.8</druid.version>
         <hutool.version>5.8.10</hutool.version>
@@ -155,21 +156,7 @@
         <finalName>${project.name}</finalName>
         <resources>
             <resource>
-                <directory>src/main/java</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/webapp</directory>
+                <directory>src/main</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/*.*</include>
@@ -177,32 +164,35 @@
             </resource>
         </resources>
         <plugins>
+            <!-- maven打包插件,执行这个插件可以打出可执行jar包 -->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <version>2.3.5.RELEASE</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <mainClass>这里写你项目的主方法类名称MainClass</mainClass>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <!-- 静态资源 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>jars</classpathPrefix>
-                        </manifest>
-                        <manifestEntries>
-                            <Implementation-Title>${project.name}</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>
-                            <Build-Time>${maven.build.timestamp}</Build-Time>
-                            <Built-By>ZhuYouBin</Built-By>
-                        </manifestEntries>
-                    </archive>
+                    <nonFilteredFileExtensions>
+                        <!-- 编码打包时候，不过滤这些二进制文件 -->
+                        <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>swf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
         </plugins>
