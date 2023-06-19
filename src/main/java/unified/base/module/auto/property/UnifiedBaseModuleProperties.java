@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @Copyright (C) ZhuYouBin
  * @Description: 自定义配置属性
  */
-@ConfigurationProperties("unified.base.module")
+@ConfigurationProperties("unified.module")
 public class UnifiedBaseModuleProperties {
 
 }

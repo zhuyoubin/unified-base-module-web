@@ -23,9 +23,9 @@
         <property name="file.pattern" value="%date{DEFAULT} [%thread] [traceId:%X{traceId}] %-5level %logger{36}.%M(line %L): %msg%n%throwable"/>
         <property name="console.pattern" value="%style{%date{DEFAULT}}{red} %style{[%thread]}{blue} [traceId:%X{traceId}] %highlight{%-5level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green} %style{%logger{36}.%style{%M(line %L)}{blue}}{magenta}: %style{%msg}{cyan}%n%style{%throwable}{red}"/>
         <!-- 日志文件输出路径 -->
-        <property name="filePath" value="/unified-module-web/logs"/>
+        <property name="filePath" value="/app/logs"/>
         <!-- 日志文件输出名称 -->
-        <property name="fileName" value="unified-module-web.log"/>
+        <property name="fileName" value="app.log"/>
     </Properties>
 
     <!-- 日志追加器 -->

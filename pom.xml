@@ -4,10 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>unified-base-module-web</name>
     <groupId>io.github.zhuyoubin</groupId>
     <artifactId>unified-base-module-web</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
+    <packaging>jar</packaging>
+
+    <name>unified-base-module-web</name>
     <url>https://github.com/zhuyoubin/unified-base-module-web</url>
     <description>This is a basic dependencies for web project.</description>
 
@@ -33,6 +35,9 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- 统一版本控制 -->
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
@@ -43,6 +48,8 @@
         <mybatis-plus.version>3.4.2</mybatis-plus.version>
         <pagerhelper.version>1.4.0</pagerhelper.version>
         <lombok.version>1.18.16</lombok.version>
+        <jwt.version>3.15.0</jwt.version>
+        <bcprov.version>1.66</bcprov.version>
     </properties>
 
     <dependencyManagement>
@@ -83,6 +90,21 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-thymeleaf</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15to18</artifactId>
+                <version>${bcprov.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -127,6 +149,10 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -137,6 +163,14 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15to18</artifactId>
         </dependency>
         <!-- 以下这些是可选依赖 -->
         <dependency>
@@ -156,7 +190,21 @@
         <finalName>${project.name}</finalName>
         <resources>
             <resource>
-                <directory>src/main</directory>
+                <directory>src/main/java</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/webapp</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/*.*</include>
@@ -165,21 +213,21 @@
         </resources>
         <plugins>
             <!-- maven打包插件,执行这个插件可以打出可执行jar包 -->
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                <version>2.3.5.RELEASE</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>repackage</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <mainClass>这里写你项目的主方法类名称MainClass</mainClass>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.springframework.boot</groupId>-->
+            <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--                <version>2.3.5.RELEASE</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <goals>-->
+            <!--                            <goal>repackage</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <mainClass>这里写你项目的主方法类名称MainClass</mainClass>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
             <!-- 静态资源 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -227,23 +275,16 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.2.0</version>
                         <configuration>
-                            <show>package</show>
-                            <tags>
-                                <tag>
-                                    <name>date</name>
-                                </tag>
-                            </tags>
+                            <additionalOptions>
+                                <additionalOption>-Xdoclint:none</additionalOption>
+                            </additionalOptions>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>attach-javadocs</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
-                                <configuration>
-                                    <doclint>none</doclint>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -253,7 +294,6 @@
                         <version>1.6</version>
                         <executions>
                             <execution>
-                                <!-- 注意：这里的id需要和setting.xml配置文件中的profiles配置的id相同 -->
                                 <id>sonatype-gpg</id>
                                 <phase>verify</phase>
                                 <goals>
@@ -268,7 +308,6 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <!-- 注意：这里的id需要和setting.xml配置文件中的servers配置的id相同 -->
                             <serverId>sonatype-release</serverId>
                             <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
@@ -278,12 +317,10 @@
             </build>
             <distributionManagement>
                 <snapshotRepository>
-                    <!-- 注意：这里的id需要和setting.xml配置文件中的servers配置的id相同 -->
                     <id>sonatype-snapshots</id>
                     <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
                 <repository>
-                    <!-- 注意：这里的id需要和setting.xml配置文件中的servers配置的id相同 -->
                     <id>sonatype-release</id>
                     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
