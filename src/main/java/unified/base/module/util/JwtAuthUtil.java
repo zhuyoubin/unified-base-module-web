@@ -49,14 +49,14 @@ public class JwtAuthUtil {
     }
 
     /**
-     * 生成JWT的Token
+     * 生成JWT的Token，默认有效时间是3小时
      * @param claims 消息体的声明信息，例如：用户名称、用户ID等等
      * @return 返回生成的Token
      */
     public static String generateToken(Map<String, String> claims) {
         Map<String, Object> headerMap = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 6);
+        calendar.add(Calendar.HOUR, 3);
         // 生成 Token
         final JWTCreator.Builder builder = JWT.create()
                 .withHeader(headerMap) // JWT的 Header 消息头

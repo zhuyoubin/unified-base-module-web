@@ -1,6 +1,10 @@
 package unified.base.module.auto.config;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -18,6 +22,7 @@ import unified.base.module.auto.property.UnifiedBaseModuleProperties;
 import unified.base.module.config.filter.LogTraceFilter;
 import unified.base.module.exp.GlobalExceptionHandler;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -47,12 +52,19 @@ public class UnifiedBaseModuleAutoConfiguration {
      */
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
-        logger.info("自动配置[Jackson].");
+        logger.info("自动配置[Jackson]。");
         return new Jackson2ObjectMapperBuilderCustomizer() {
             @Override
             public void customize(Jackson2ObjectMapperBuilder builder) {
                 // 设置序列化特征
                 builder.serializationInclusion(JsonInclude.Include.NON_NULL)
+                        // 反序列的时候，针对String字符串类型，去除前后空白字符
+                        .deserializerByType(String.class, new StdScalarDeserializer<String>(String.class) {
+                            @Override
+                            public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                                return StrUtil.trim(p.getValueAsString());
+                            }
+                        })
                         .timeZone("Asia/Shanghai")
                         .simpleDateFormat("yyyy-MM-dd HH:mm:ss");
             }
@@ -64,12 +76,13 @@ public class UnifiedBaseModuleAutoConfiguration {
      */
     @Bean
     public FilterRegistrationBean<LogTraceFilter> logTraceFilter() {
-        FilterRegistrationBean<LogTraceFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new LogTraceFilter());
-        registrationBean.setUrlPatterns(Collections.singleton("/*"));
-        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
-        logger.info("自动配置[LogTraceFilter]日志过滤器.");
-        return registrationBean;
+        FilterRegistrationBean<LogTraceFilter> reg = new FilterRegistrationBean<>();
+        reg.setFilter(new LogTraceFilter());
+        reg.setName("LogTraceFilter");
+        reg.setUrlPatterns(Collections.singleton("/*"));
+        reg.setOrder(Ordered.LOWEST_PRECEDENCE);
+        logger.info("自动配置[LogTraceFilter]日志过滤器。");
+        return reg;
     }
 
     /**
@@ -78,22 +91,21 @@ public class UnifiedBaseModuleAutoConfiguration {
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         // 创建 Cors 配置对象
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.addAllowedOrigin("*"); // 设置允许哪些跨域
-        corsConfig.addAllowedHeader("*"); // 设置允许的消息头
-        corsConfig.addAllowedMethod("*"); // 设置允许的响应头
-        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 设置允许的跨域请求方式
-        corsConfig.setAllowCredentials(true); // 设置允许cookie跨域
-        corsConfig.setMaxAge(3600L); // 设置 OPTIONS 请求的缓存时间
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*"); // 设置允许哪些跨域
+        config.addAllowedHeader("*"); // 设置允许的消息头
+        config.addAllowedMethod("*"); // 设置允许的响应头
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE")); // 设置允许的跨域请求方式
+        config.setAllowCredentials(true); // 设置允许cookie跨域
+        config.setMaxAge(3600L); // 设置 OPTIONS 请求的缓存时间
         // 创建url配置资源
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig); // 注册 CORS 跨域配置
+        source.registerCorsConfiguration("/**", config); // 注册 CORS 跨域配置
         CorsFilter corsFilter = new CorsFilter(source); // 创建 CorsFilter 过滤器
         // 创建注册过滤器的Bean对象
-        FilterRegistrationBean<CorsFilter> registrationBean = new FilterRegistrationBean<>(corsFilter);
-        // 设置 CorsFilter 过滤器最先执行
-        registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
-        logger.info("自动配置[CorsFilter]CORS跨域过滤器.");
-        return registrationBean;
+        FilterRegistrationBean<CorsFilter> reg = new FilterRegistrationBean<>(corsFilter);
+        reg.setOrder(Ordered.HIGHEST_PRECEDENCE); // 设置 CorsFilter 过滤器最先执行
+        logger.info("自动配置[CorsFilter]CORS跨域过滤器。");
+        return reg;
     }
 }

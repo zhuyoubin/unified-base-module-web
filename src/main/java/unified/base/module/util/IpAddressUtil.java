@@ -56,6 +56,8 @@ public class IpAddressUtil {
         return getAddress(WHOIS_URL + "?ip=" + ip + "&json=true");
     }
 
+    //*********************************** private ***************************************//
+
     private static String getIp(HttpServletRequest request, String header, String ip) {
         if (ip == null || ip.length() == 0 || Objects.equals(UNKNOWN_IP, ip)) {
             ip = request.getHeader(header);

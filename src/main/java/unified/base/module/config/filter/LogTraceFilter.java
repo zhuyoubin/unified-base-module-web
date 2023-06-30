@@ -1,12 +1,12 @@
 package unified.base.module.config.filter;
 
 import org.slf4j.MDC;
+import unified.base.module.util.MD5Util;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * @version 1.0.0
@@ -22,7 +22,7 @@ public class LogTraceFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
         // 生成traceId
-        String traceId = UUID.randomUUID().toString().replaceAll("-", "");
+        String traceId = MD5Util.getUUID();
         // 将生成的traceId放入到MDC里面
         MDC.put(TRACE_ID, traceId);
         // 将生成的traceId响应给前端header里面
